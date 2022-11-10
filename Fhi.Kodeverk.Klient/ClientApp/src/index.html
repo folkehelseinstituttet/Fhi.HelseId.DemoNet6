@@ -11,25 +11,4 @@
 <body>
 <app-root>Loading...</app-root>
 </body>
-
-<script>
-  function checkauthorization()
-  {
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      if (xhr.status === 403) {
-        console.log(xhr.responseText);
-        console.log("Du er ikke autorisert");
-        window.location.href = "/Forbidden.html";
-      } else {
-        console.log("Hei");
-
-      }
-    };
-    window.location = 'localhost:44382/weatherforecast';
-    xhr.send();
-  }
-  checkauthorization();
-
-</script>
 </html>

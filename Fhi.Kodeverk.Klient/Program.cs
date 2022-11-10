@@ -33,6 +33,8 @@ builder.Services.AddHelseIdWebAuthentication(
     null
     );
 
+
+
 //builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -45,7 +47,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+//app.UseStaticFiles();
 
 
 app.UseCors(b => b
@@ -54,9 +56,6 @@ app.UseCors(b => b
     .AllowAnyMethod()
 );
 app.UseRouting();
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.UseHelseIdProtectedPaths(
         helseIdWebKonfigurasjon, 
@@ -67,11 +66,14 @@ app.UseHelseIdProtectedPaths(
         "/assets/favicon.ico"
     });
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+  app.UseAuthentication();
+  app.UseAuthorization();
 
-app.MapFallbackToFile("index.html"); ;
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller}/{action=Index}/{id?}");
+
+//app.MapFallbackToFile("index.html"); ;
 
 app.Run();
 
