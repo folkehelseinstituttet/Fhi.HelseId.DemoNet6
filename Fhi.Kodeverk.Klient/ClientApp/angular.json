@@ -129,5 +129,8 @@
       }
     }
   },
-  "defaultProject": "Fhi.Kodeverk.Klient"
+  "defaultProject": "Fhi.Kodeverk.Klient",
+  "cli": {
+    "analytics": false
+  }
 }

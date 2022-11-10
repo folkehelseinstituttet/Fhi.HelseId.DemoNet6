@@ -23,19 +23,18 @@ builder.Services.AddAccessTokenManagement();
 builder.Services.AddTransient<AuthHeaderHandler>();
 
 //builder.Services.AddCors();
-
-builder.Services.AddHelseIdWebAuthentication(
-    helseIdWebKonfigurasjon,
-    new RedirectPagesKonfigurasjon(),
-    new HprKonfigurasjon { UseHpr = false, UseHprPolicy = false },
-    whitelist,
-    null,
-    null
+if (helseIdWebKonfigurasjon.AuthUse)
+{
+    builder.Services.AddHelseIdWebAuthentication(
+        helseIdWebKonfigurasjon,
+        new RedirectPagesKonfigurasjon(),
+        new HprKonfigurasjon { UseHpr = false, UseHprPolicy = false },
+        whitelist,
+        null,
+        null
     );
-
-
-
-//builder.Services.AddControllersWithViews();
+} else
+    builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -47,7 +46,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseStaticFiles();
+app.UseStaticFiles();
 
 
 app.UseCors(b => b
@@ -69,11 +68,11 @@ app.UseHelseIdProtectedPaths(
   app.UseAuthentication();
   app.UseAuthorization();
 
-//app.MapControllerRoute(
-//    name: "default",
-//    pattern: "{controller}/{action=Index}/{id?}");
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller}/{action=Index}/{id?}");
 
-//app.MapFallbackToFile("index.html"); ;
+app.MapFallbackToFile("index.html"); ;
 
 app.Run();
 
@@ -81,17 +80,17 @@ public class NoHprApprovals : GodkjenteHprKategoriListe
 {
 }
 
-//public class AuthHeaderHandler : DelegatingHandler
-//{
-//    private readonly IHttpContextAccessor _contextAccessor;
-//    public AuthHeaderHandler(IHttpContextAccessor contextAccessor)
-//    {
-//        _contextAccessor = contextAccessor;
-//    }
-//    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-//    {
-//        var token = _contextAccessor.HttpContext.GetUserAccessTokenAsync(null, cancellationToken);
-//        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await token);
-//        return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-//    }
-//}
+public class AuthHeaderHandler : DelegatingHandler
+{
+    private readonly IHttpContextAccessor _contextAccessor;
+    public AuthHeaderHandler(IHttpContextAccessor contextAccessor)
+    {
+        _contextAccessor = contextAccessor;
+    }
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        var token = _contextAccessor.HttpContext.GetUserAccessTokenAsync(null, cancellationToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await token);
+        return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
+    }
+}
