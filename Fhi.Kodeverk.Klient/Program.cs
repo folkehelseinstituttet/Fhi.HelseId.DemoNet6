@@ -3,9 +3,7 @@ using Fhi.HelseId.Web;
 using Fhi.HelseId.Web.ExtensionMethods;
 using Fhi.HelseId.Web.Hpr;
 using Fhi.HelseId.Web.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.Configuration;
-using System.Net.Http.Headers;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var whitelist = new Whitelist();
 
@@ -22,8 +20,6 @@ builder.Services.AddScoped<IGodkjenteHprKategoriListe, NoHprApprovals>();
 builder.Services.AddAccessTokenManagement();
 builder.Services.AddTransient<AuthHeaderHandler>();
 
-//builder.Services.AddCors();
-
 builder.Services.AddHelseIdWebAuthentication(
     helseIdWebKonfigurasjon,
     new RedirectPagesKonfigurasjon(),
@@ -33,7 +29,12 @@ builder.Services.AddHelseIdWebAuthentication(
     null
     );
 
-//builder.Services.AddControllersWithViews();
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+});
+
 
 var app = builder.Build();
 
@@ -44,15 +45,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseForwardedHeaders();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 
-app.UseCors(b => b
-    .AllowAnyOrigin()
-    .AllowAnyHeader()
-    .AllowAnyMethod()
-);
 app.UseRouting();
 
 app.UseAuthentication();
@@ -78,18 +76,3 @@ app.Run();
 public class NoHprApprovals : GodkjenteHprKategoriListe
 {
 }
-
-//public class AuthHeaderHandler : DelegatingHandler
-//{
-//    private readonly IHttpContextAccessor _contextAccessor;
-//    public AuthHeaderHandler(IHttpContextAccessor contextAccessor)
-//    {
-//        _contextAccessor = contextAccessor;
-//    }
-//    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-//    {
-//        var token = _contextAccessor.HttpContext.GetUserAccessTokenAsync(null, cancellationToken);
-//        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await token);
-//        return await base.SendAsync(request, cancellationToken).ConfigureAwait(false);
-//    }
-//}
